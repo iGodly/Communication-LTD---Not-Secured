@@ -44,12 +44,19 @@ async function getCustomerById(req, res) {
 // Create new customer
 async function createCustomer(req, res) {
   try {
-    const { name, sector, contactEmail, contactPhone } = req.body;
+    console.log('[SQL DEBUG] createCustomer called with body:', JSON.stringify(req.body));
+    const { name, sector } = req.body;
 
-    const [result] = await pool.query(
-      'INSERT INTO customers (name, sector, contact_email, contact_phone) VALUES (?, ?, ?, ?)',
-      [name, sector, contactEmail, contactPhone]
-    );
+    console.log('[SQL DEBUG] name:', name);
+    console.log('[SQL DEBUG] sector:', sector);
+
+    // VULNERABLE: Using string concatenation instead of parameterized queries
+    const sql = `INSERT INTO customers (name, sector) VALUES ('${name}', '${sector}')`;
+    console.log('[SQL DEBUG] Executing:', sql);
+    console.log('[SQL DEBUG] SQL length:', sql.length);
+    
+    const [result] = await pool.query(sql);
+    console.log('[SQL DEBUG] Query executed successfully, result:', result);
 
     const [newCustomer] = await pool.query(
       'SELECT * FROM customers WHERE id = ?',
@@ -59,6 +66,8 @@ async function createCustomer(req, res) {
     logger.info(`New customer created: ${name}`);
     res.status(201).json(newCustomer[0]);
   } catch (error) {
+    console.log('[SQL DEBUG] Error occurred:', error.message);
+    console.log('[SQL DEBUG] Error stack:', error.stack);
     logger.error('Error creating customer:', error);
     res.status(500).json({ message: 'Error creating customer' });
   }
@@ -67,7 +76,7 @@ async function createCustomer(req, res) {
 // Update customer
 async function updateCustomer(req, res) {
   try {
-    const { name, sector, contactEmail, contactPhone } = req.body;
+    const { name, sector } = req.body;
     const customerId = req.params.id;
 
     // Check if customer exists
@@ -84,11 +93,9 @@ async function updateCustomer(req, res) {
     await pool.query(
       `UPDATE customers 
        SET name = COALESCE(?, name),
-           sector = COALESCE(?, sector),
-           contact_email = COALESCE(?, contact_email),
-           contact_phone = COALESCE(?, contact_phone)
+           sector = COALESCE(?, sector)
        WHERE id = ?`,
-      [name, sector, contactEmail, contactPhone, customerId]
+      [name, sector, customerId]
     );
 
     // Get updated customer
