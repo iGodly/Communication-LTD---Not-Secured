@@ -104,12 +104,6 @@ For a secure version, the following should be implemented:
 - **Content Security Policy**: Prevent script injection
 - **Secure Headers**: Implement security headers
 
-## Related Resources
-
-- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
-- [OWASP SQL Injection Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html)
-- [OWASP XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
-
 ## License
 
 ISC
